@@ -24,7 +24,7 @@ from utils import (
 
 
 def main():
-
+    torch.cuda.empty_cache()
     # CLI arguments
     parser = arg.ArgumentParser(
         description="Training method for\t"
@@ -40,7 +40,8 @@ def main():
     parser.add_argument(
         "--lr", "-l", default=0.0001, type=float, help="initial learning rate"
     )
-    parser.add_argument("--batch", "-b", default=8, type=int, help="Batch size")
+    parser.add_argument("--batch", "-b", default=8,
+                        type=int, help="Batch size")
     parser.add_argument(
         "--checkpoint",
         "-c",
@@ -87,7 +88,8 @@ def main():
 
     # Load data
     print("Loading Data ...")
-    trainloader, testloader = getTrainingTestingData(args.data, batch_size=args.batch)
+    trainloader, testloader = getTrainingTestingData(
+        args.data, batch_size=args.batch)
     print("Dataloaders ready ...")
     num_trainloader = len(trainloader)
     num_testloader = len(testloader)
@@ -130,6 +132,7 @@ def main():
 
     # Logging
     writer = SummaryWriter(
+        log_dir="runs/{}".format(model_prefix),
         comment="{}-learning_rate:{}-epoch:{}-batch_size:{}".format(
             model_prefix, args.lr, args.epochs, args.batch
         )
@@ -173,7 +176,8 @@ def main():
                 max=1,
             )
 
-            gradient_loss = gradient_criterion(normalized_depth_y, preds, device=device)
+            gradient_loss = gradient_criterion(
+                normalized_depth_y, preds, device=device)
 
             net_loss = (
                 (1.0 * ssim_loss)
@@ -236,7 +240,8 @@ def main():
                     "optim_state_dict": optimizer.state_dict(),
                     "loss": loss_meter.avg,
                 },
-                args.save + "ckpt_{}_{}.pth".format(epoch, int(loss_meter.avg * 100)),
+                args.save +
+                "ckpt_{}_{}.pth".format(epoch, int(loss_meter.avg * 100)),
             )
 
             # model = model.to(device)
@@ -251,14 +256,14 @@ def main():
                     "optim_state_dict": optimizer.state_dict(),
                     "loss": loss_meter.avg,
                 },
-                args.save + "ckpt_{}_{}.pth".format(epoch, int(loss_meter.avg * 100)),
+                args.save +
+                "ckpt_{}_{}.pth".format(epoch, int(loss_meter.avg * 100)),
             )
 
             # save_count = (args.epochs % 5) + save_count
 
 
 def LogProgress(model, writer, test_loader, epoch, device):
-
     """To record intermediate results of training"""
 
     model.eval()
@@ -277,7 +282,8 @@ def LogProgress(model, writer, test_loader, epoch, device):
     if epoch == 0:
         writer.add_image(
             "Train.2.Image",
-            colorize(vision_utils.make_grid(depth.data, nrow=6, normalize=False)),
+            colorize(vision_utils.make_grid(
+                depth.data, nrow=6, normalize=False)),
             epoch,
         )
 
